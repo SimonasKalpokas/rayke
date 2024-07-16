@@ -5,7 +5,9 @@ package main
 // #include <stdlib.h>
 // #include "raylib.h"
 import "C"
-import "unsafe"
+import (
+	"unsafe"
+)
 
 type Direction int
 
@@ -26,11 +28,11 @@ func (c Coords) MoveInDirection(d Direction) Coords {
 	case Left:
 		return Coords{X: c.X - 1, Y: c.Y}
 	case Up:
-		return Coords{X: c.X, Y: c.Y + 1}
+		return Coords{X: c.X, Y: c.Y - 1}
 	case Right:
 		return Coords{X: c.X + 1, Y: c.Y}
 	case Down:
-		return Coords{X: c.X, Y: c.Y - 1}
+		return Coords{X: c.X, Y: c.Y + 1}
 	default:
 		panic("Impossible direction")
 	}
@@ -136,6 +138,19 @@ func main() {
 	for !C.WindowShouldClose() {
 		dt := C.GetFrameTime()
 		world.Update(float32(dt))
+
+		if C.IsKeyDown(C.KEY_RIGHT) && world.direction != Left {
+			world.direction = Right
+		}
+		if C.IsKeyDown(C.KEY_LEFT) && world.direction != Right {
+			world.direction = Left
+		}
+		if C.IsKeyDown(C.KEY_DOWN) && world.direction != Up {
+			world.direction = Down
+		}
+		if C.IsKeyDown(C.KEY_UP) && world.direction != Down {
+			world.direction = Up
+		}
 		C.BeginDrawing()
 		C.ClearBackground(C.LIGHTGRAY)
 		world.Draw()
