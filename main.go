@@ -1,6 +1,10 @@
 package main
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	"math/rand"
+
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
 
 type Direction int
 
@@ -36,6 +40,7 @@ type World struct {
 	columnCount int32
 	rowCount    int32
 	snake       []Coords
+	apple       Coords
 	direction   Direction
 	frameTime   float32
 	currentTime float32
@@ -61,7 +66,29 @@ func New(columnCount, rowCount, boxSize int32, snakeLength int) World {
 		world.snake = append(world.snake, snakeCoords)
 	}
 
+	world.PlaceNewApple()
+
 	return world
+}
+
+func (world *World) PlaceNewApple() {
+	var x, y int32
+
+	regenerate := true
+	for regenerate {
+		regenerate = false
+		x = rand.Int31n(world.columnCount)
+		y = rand.Int31n(world.rowCount)
+		for _, snakeCoord := range world.snake {
+			if x == snakeCoord.X && y == snakeCoord.Y {
+				regenerate = true
+				break
+			}
+		}
+	}
+
+	world.apple.X = x
+	world.apple.Y = y
 }
 
 func (world *World) ScreenHeight() int32 {
@@ -93,10 +120,17 @@ func (world *World) Update(dt float32) {
 	if newHead.Y >= world.rowCount {
 		newHead.Y = 0
 	}
-	world.snake = append(world.snake, newHead)[1:]
+
+	world.snake = append(world.snake, newHead)
+	if newHead.X == world.apple.X && newHead.Y == world.apple.Y {
+		world.PlaceNewApple()
+	} else {
+		world.snake = world.snake[1:]
+	}
 }
 
 func (world *World) Draw() {
+	// Draw grid
 	for row := int32(0); row < world.rowCount; row++ {
 		for column := int32(0); column < world.columnCount; column++ {
 			rl.DrawRectangleLines(
@@ -108,6 +142,7 @@ func (world *World) Draw() {
 		}
 	}
 
+	// Draw snake
 	for _, snakeCoords := range world.snake {
 		rl.DrawRectangle(
 			snakeCoords.X*world.boxSize,
@@ -116,6 +151,14 @@ func (world *World) Draw() {
 			world.boxSize,
 			rl.Black)
 	}
+
+	// Draw apple
+	rl.DrawRectangle(
+		world.apple.X*world.boxSize,
+		world.apple.Y*world.boxSize,
+		world.boxSize,
+		world.boxSize,
+		rl.Red)
 }
 
 func main() {
