@@ -12,8 +12,8 @@ const (
 )
 
 type Coords struct {
-	X int
-	Y int
+	X int32
+	Y int32
 }
 
 func (c Coords) MoveInDirection(d Direction) Coords {
@@ -33,18 +33,18 @@ func (c Coords) MoveInDirection(d Direction) Coords {
 
 type World struct {
 	// logic
-	columnCount int
-	rowCount    int
+	columnCount int32
+	rowCount    int32
 	snake       []Coords
 	direction   Direction
 	frameTime   float32
 	currentTime float32
 
 	// rendering
-	boxSize int
+	boxSize int32
 }
 
-func New(columnCount int, rowCount int, boxSize int, snakeLength int) World {
+func New(columnCount, rowCount, boxSize int32, snakeLength int) World {
 	frameTime := float32(1) / 10
 	world := World{
 		columnCount: columnCount,
@@ -64,11 +64,11 @@ func New(columnCount int, rowCount int, boxSize int, snakeLength int) World {
 	return world
 }
 
-func (world *World) ScreenHeight() int {
+func (world *World) ScreenHeight() int32 {
 	return world.rowCount * world.boxSize
 }
 
-func (world *World) ScreenWidth() int {
+func (world *World) ScreenWidth() int32 {
 	return world.columnCount * world.boxSize
 }
 
@@ -97,23 +97,23 @@ func (world *World) Update(dt float32) {
 }
 
 func (world *World) Draw() {
-	for row := 0; row < world.rowCount; row++ {
-		for column := 0; column < world.columnCount; column++ {
+	for row := int32(0); row < world.rowCount; row++ {
+		for column := int32(0); column < world.columnCount; column++ {
 			rl.DrawRectangleLines(
-				int32(column*world.boxSize),
-				int32(row*world.boxSize),
-				int32(world.boxSize),
-				int32(world.boxSize),
+				column*world.boxSize,
+				row*world.boxSize,
+				world.boxSize,
+				world.boxSize,
 				rl.Gray)
 		}
 	}
 
 	for _, snakeCoords := range world.snake {
 		rl.DrawRectangle(
-			int32(snakeCoords.X*world.boxSize),
-			int32(snakeCoords.Y*world.boxSize),
-			int32(world.boxSize),
-			int32(world.boxSize),
+			snakeCoords.X*world.boxSize,
+			snakeCoords.Y*world.boxSize,
+			world.boxSize,
+			world.boxSize,
 			rl.Black)
 	}
 }
@@ -123,8 +123,8 @@ func main() {
 
 	world := New(40, 20, 20, 5)
 	rl.InitWindow(
-		int32(world.ScreenWidth()),
-		int32(world.ScreenHeight()),
+		world.ScreenWidth(),
+		world.ScreenHeight(),
 		title)
 
 	for !rl.WindowShouldClose() {
