@@ -1,13 +1,6 @@
 package main
 
-// #cgo CFLAGS: -I raylib-5.0_linux_amd64/include
-// #cgo LDFLAGS: -L raylib-5.0_linux_amd64/lib -l:libraylib.a -lm
-// #include <stdlib.h>
-// #include "raylib.h"
-import "C"
-import (
-	"unsafe"
-)
+import rl "github.com/gen2brain/raylib-go/raylib"
 
 type Direction int
 
@@ -106,55 +99,54 @@ func (world *World) Update(dt float32) {
 func (world *World) Draw() {
 	for row := 0; row < world.rowCount; row++ {
 		for column := 0; column < world.columnCount; column++ {
-			C.DrawRectangleLines(
-				C.int(column*world.boxSize),
-				C.int(row*world.boxSize),
-				C.int(world.boxSize),
-				C.int(world.boxSize),
-				C.GRAY)
+			rl.DrawRectangleLines(
+				int32(column*world.boxSize),
+				int32(row*world.boxSize),
+				int32(world.boxSize),
+				int32(world.boxSize),
+				rl.Gray)
 		}
 	}
 
 	for _, snakeCoords := range world.snake {
-		C.DrawRectangle(
-			C.int(snakeCoords.X*world.boxSize),
-			C.int(snakeCoords.Y*world.boxSize),
-			C.int(world.boxSize),
-			C.int(world.boxSize),
-			C.BLACK)
+		rl.DrawRectangle(
+			int32(snakeCoords.X*world.boxSize),
+			int32(snakeCoords.Y*world.boxSize),
+			int32(world.boxSize),
+			int32(world.boxSize),
+			rl.Black)
 	}
 }
 
 func main() {
-	title := C.CString("rayke")
-	defer C.free(unsafe.Pointer(title))
+	title := "rayke"
 
 	world := New(40, 20, 20, 5)
-	C.InitWindow(
-		C.int(world.ScreenWidth()),
-		C.int(world.ScreenHeight()),
+	rl.InitWindow(
+		int32(world.ScreenWidth()),
+		int32(world.ScreenHeight()),
 		title)
 
-	for !C.WindowShouldClose() {
-		dt := C.GetFrameTime()
+	for !rl.WindowShouldClose() {
+		dt := rl.GetFrameTime()
 		world.Update(float32(dt))
 
-		if C.IsKeyDown(C.KEY_RIGHT) && world.direction != Left {
+		if rl.IsKeyDown(rl.KeyRight) && world.direction != Left {
 			world.direction = Right
 		}
-		if C.IsKeyDown(C.KEY_LEFT) && world.direction != Right {
+		if rl.IsKeyDown(rl.KeyLeft) && world.direction != Right {
 			world.direction = Left
 		}
-		if C.IsKeyDown(C.KEY_DOWN) && world.direction != Up {
+		if rl.IsKeyDown(rl.KeyDown) && world.direction != Up {
 			world.direction = Down
 		}
-		if C.IsKeyDown(C.KEY_UP) && world.direction != Down {
+		if rl.IsKeyDown(rl.KeyUp) && world.direction != Down {
 			world.direction = Up
 		}
-		C.BeginDrawing()
-		C.ClearBackground(C.LIGHTGRAY)
+		rl.BeginDrawing()
+		rl.ClearBackground(rl.LightGray)
 		world.Draw()
-		C.EndDrawing()
+		rl.EndDrawing()
 	}
-	C.CloseWindow()
+	rl.CloseWindow()
 }
