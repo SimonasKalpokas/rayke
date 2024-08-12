@@ -44,6 +44,7 @@ type World struct {
 	direction   Direction
 	frameTime   float32
 	currentTime float32
+	pause       bool
 
 	// rendering
 	boxSize int32
@@ -57,6 +58,7 @@ func New(columnCount, rowCount, boxSize int32, snakeLength int) World {
 		direction:   Right,
 		frameTime:   frameTime,
 		currentTime: frameTime,
+		pause:       false,
 
 		boxSize: boxSize,
 	}
@@ -171,21 +173,30 @@ func main() {
 		title)
 
 	for !rl.WindowShouldClose() {
-		dt := rl.GetFrameTime()
-		world.Update(float32(dt))
-
-		if rl.IsKeyDown(rl.KeyRight) && world.direction != Left {
+		if rl.IsKeyPressed(rl.KeyQ) {
+			break
+		}
+		if rl.IsKeyPressed(rl.KeyP) {
+			world.pause = !world.pause
+		}
+		if rl.IsKeyDown(rl.KeyL) && world.direction != Left {
 			world.direction = Right
 		}
-		if rl.IsKeyDown(rl.KeyLeft) && world.direction != Right {
+		if rl.IsKeyDown(rl.KeyH) && world.direction != Right {
 			world.direction = Left
 		}
-		if rl.IsKeyDown(rl.KeyDown) && world.direction != Up {
+		if rl.IsKeyDown(rl.KeyJ) && world.direction != Up {
 			world.direction = Down
 		}
-		if rl.IsKeyDown(rl.KeyUp) && world.direction != Down {
+		if rl.IsKeyDown(rl.KeyK) && world.direction != Down {
 			world.direction = Up
 		}
+
+		if !world.pause {
+			dt := rl.GetFrameTime()
+			world.Update(float32(dt))
+		}
+
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.LightGray)
 		world.Draw()
