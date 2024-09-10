@@ -45,6 +45,7 @@ type World struct {
 	frameTime   float32
 	currentTime float32
 	pause       bool
+	end         bool
 
 	// rendering
 	boxSize int32
@@ -123,8 +124,14 @@ func (world *World) Update(dt float32) {
 		newHead.Y = 0
 	}
 
+	for _, body := range world.snake {
+		if body == newHead {
+			world.end = true
+		}
+	}
+
 	world.snake = append(world.snake, newHead)
-	if newHead.X == world.apple.X && newHead.Y == world.apple.Y {
+	if newHead == world.apple {
 		world.PlaceNewApple()
 	} else {
 		world.snake = world.snake[1:]
@@ -179,6 +186,9 @@ func main() {
 		if rl.IsKeyPressed(rl.KeyP) {
 			world.pause = !world.pause
 		}
+		if rl.IsKeyPressed(rl.KeyR) {
+			world = New(40, 20, 20, 5)
+		}
 		if rl.IsKeyDown(rl.KeyL) && world.direction != Left {
 			world.direction = Right
 		}
@@ -192,7 +202,7 @@ func main() {
 			world.direction = Up
 		}
 
-		if !world.pause {
+		if !world.pause && !world.end {
 			dt := rl.GetFrameTime()
 			world.Update(float32(dt))
 		}
